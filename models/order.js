@@ -52,10 +52,6 @@ var orderSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Coupon'
     },
-    totalPrice: {
-        type: Number,
-        required: true,
-    },
     status: {
         type: String,
         enum: [
