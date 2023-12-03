@@ -4,11 +4,11 @@ const { verifyAccessToken, isAdmin } = require('../middlewares/verifyToken')
 
 
 
-router.post('/add', [verifyAccessToken, isAdmin],ctrls.createdCategory)
+router.post('/add',ctrls.createdCategory)
 router.get('/',  ctrls.getAllCategory)
-router.put('/:pcid',[verifyAccessToken, isAdmin], ctrls.updateCategory)
-router.delete('/:pcid', [verifyAccessToken, isAdmin],ctrls.deleteCategory)
-router.get('/:pcid', [verifyAccessToken, isAdmin], ctrls.getOneCategory)
+router.put('/:pcid', ctrls.updateCategory)
+router.delete('/:pcid', ctrls.deleteCategory)
+router.get('/:pcid',  ctrls.getOneCategory)
 
 
 
