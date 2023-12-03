@@ -25,6 +25,16 @@ var orderSchema = new mongoose.Schema({
             },
         },
     ],
+    address: {
+        type: String,
+        default: "",
+        require: true
+    },
+    mobile: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     totalPrice: {
         type: Number,
         required: true,
