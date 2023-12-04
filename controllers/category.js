@@ -1,5 +1,7 @@
 const Category = require('../models/category')
 const asyncHandler = require('express-async-handler')
+const Product = require('../models/product');
+
 
 const createdCategory = asyncHandler(async(req,res)=>{
     const response = await Category.create(req.body)
@@ -51,11 +53,35 @@ const deleteCategory = asyncHandler(async(req,res)=>{
     })
 })
 
+// Import các model và middleware cần thiết
+
+// Hàm lấy tất cả sản phẩm của một category
+const getProductsByCategoryId = asyncHandler(async (req, res) => {
+    const { category } = req.params;
+
+    // Kiểm tra xem category có hợp lệ không, nếu không trả về lỗi
+    if (!category) {
+        return res.status(400).json({
+            success: false,
+            error: 'Category ID không hợp lệ',
+        });
+    }
+
+    // Tìm tất cả sản phẩm thuộc category có category
+    const products = await Product.find({ category });
+
+    return res.json({
+        success: true,
+        products,
+    });
+});
+
+// Export hàm mới
 module.exports = {
     createdCategory,
     getAllCategory,
     updateCategory,
     deleteCategory,
-    getOneCategory
-
-}
+    getOneCategory,
+    getProductsByCategoryId, // Thêm hàm mới vào exports
+};
