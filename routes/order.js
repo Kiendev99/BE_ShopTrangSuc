@@ -10,4 +10,5 @@ router.post('/create_payment_url', ctrls.createPaymentUrl)
 router.get('/vnpay_return', ctrls.vnpayReturn)
 router.post('/changeStatusPayment', ctrls.changeStatusPayment)
 router.get('/getOrder/:id', [verifyAccessToken, isAdmin], ctrls.getOrder);
+router.post('/getOrder', ctrls.getOrders);
 module.exports = router 

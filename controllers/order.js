@@ -288,6 +288,39 @@ const getOrder = async (req, res) => {
         });
     }
 };
+const getOrders = async (req, res) => {
+    try {
+
+        const orderIds = req.body.orderIds; 
+
+        // Kiểm tra nếu không có ID đơn hàng
+        if (!orderIds || orderIds.length === 0) {
+            return res.status(400).json({
+                message: "Không có ID đơn hàng được cung cấp",
+            });
+        }
+
+        // Tìm tất cả đơn hàng dựa trên mảng ID
+        const orders = await Order.find({ _id: { $in: orderIds } }).populate('products.product');
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({
+                message: "Không tìm thấy thông tin đơn hàng",
+            });
+        }
+
+        return res.json({
+            orders: orders,
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Đã có lỗi xảy ra khi xử lý yêu cầu",
+            error: error.message,
+        });
+    }
+};
 
 module.exports = {
     createOrder,
@@ -297,5 +330,6 @@ module.exports = {
     createPaymentUrl,
     vnpayReturn,
     changeStatusPayment,
-    getOrder
+    getOrder,
+    getOrders
 }
