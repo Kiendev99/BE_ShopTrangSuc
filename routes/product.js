@@ -13,6 +13,6 @@ router.delete('/:pid', [verifyAccessToken, isAdmin],ctrls.deleteProduct)
 router.put('/:pid', uploadCloudinary.array('image', 5), [verifyAccessToken, isAdmin], ctrls.updateProduct);
 
 
-router.put('/ratings',verifyAccessToken, ctrls.ratings)
+router.put('/ratings/add',verifyAccessToken, ctrls.ratings)
 
 module.exports = router

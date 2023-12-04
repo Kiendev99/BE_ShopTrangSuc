@@ -10,9 +10,9 @@ var blogSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    category:{
-        type:String,
-        required:true,
+    category: {
+        type: mongoose.Types.ObjectId,
+        ref: 'BlogCategory'
     },
     // luot xem
     numberViews:{
@@ -32,9 +32,9 @@ var blogSchema = new mongoose.Schema({
             ref:'User'
         }
     ],
-    images :{
+    images :[{
         type: Array,
-    },
+    }],
     //Tac gia bai viet
     author:{
         type:String,

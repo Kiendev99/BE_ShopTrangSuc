@@ -4,12 +4,21 @@ const asyncHandler = require('express-async-handler')
 
 // Thêm Blog
 const createdBlog = asyncHandler(async(req,res)=>{
-    const { title, description,category} = req.body
-    if(!title || !description || !category) throw new Error("Ko được bỏ trống!")
-    const response = await Blog.create(req.body)
+    const fileData = req.files;
+    const imagePaths = fileData.map(file => file.path);
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+            error: 'Dữ liệu không được để trống',
+        });
+    }
+
+    const Blog = await blog.create({
+        ...req.body,
+        images: imagePaths, // Sử dụng mảng đường dẫn đến các tệp
+    });
     return res.json({
-        success : response ? 'Thêm Blog thành công' : false,
-        createdBlog : response ? response : 'Ko thêm Blog được!!'
+        success : Blog ? 'Thêm Blog thành công' : false,
+        createdBlog : Blog ? Blog : 'Ko thêm Blog được!!'
     })
 })
 
@@ -30,7 +39,7 @@ const getBlog = asyncHandler(async(req,res)=>{
     .populate('likes','firstname lastname').populate('dislikes','firstname lastname')
     return res.json({
         success : blog ? 'Hiển thị bài viết thành công' : false,
-        rs : blog 
+        getBlog : blog 
     })
 })
 //Cập nhập Blog
