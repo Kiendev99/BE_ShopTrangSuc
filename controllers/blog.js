@@ -3,24 +3,25 @@ const asyncHandler = require('express-async-handler')
 
 
 // Thêm Blog
-const createdBlog = asyncHandler(async(req,res)=>{
+const createdBlog = asyncHandler(async (req, res) => {
     const fileData = req.files;
     const imagePaths = fileData.map(file => file.path);
     if (Object.keys(req.body).length === 0) {
         return res.status(400).json({
-            error: 'Dữ liệu không được để trống',
+            success: false,
+            mes: 'Dữ liệu không được để trống',
         });
     }
 
-    const Blog = await blog.create({
+    const newBlog = await Blog.create({
         ...req.body,
-        images: imagePaths, // Sử dụng mảng đường dẫn đến các tệp
+        images: imagePaths,
     });
     return res.json({
-        success : Blog ? 'Thêm Blog thành công' : false,
-        createdBlog : Blog ? Blog : 'Ko thêm Blog được!!'
-    })
-})
+        success: newBlog ? 'Thêm Blog thành công' : false,
+        createdBlog: newBlog ? newBlog : 'Không thêm Blog được!!',
+    });
+});
 
 
 // Hiển thị Blogs
