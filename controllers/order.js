@@ -119,7 +119,7 @@ const vnpayReturn = (req, res, next) => {
 
     // Xử lý Kết Quả và Hiển Thị Trang Tương Ứng
     if (secureHash === signed) {
-        res.redirect("http://localhost:4200/change-status")
+        res.redirect("http://localhost:4200/")
     }
 }
 
