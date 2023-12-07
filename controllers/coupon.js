@@ -66,7 +66,7 @@ const getCoupons = asyncHandler(async (req, res) => {
 
 const getCouponByDiscount = asyncHandler(async (req, res) => {
     try {
-        const data = await Voucher.find({ type: "discount" });
+        const data = await Voucher.find({ type: ["discount","freeship","percentage"]});
 
         if (!data || data.length === 0) {
             return res.status(404).json({

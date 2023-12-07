@@ -11,6 +11,7 @@ const brandRouter = require('./brand')
 const blogCategoryRouter = require('./blogCategory')
 const cartRouter = require('./cart');
 const feeback = require('./feedback');
+const Stat = require('./statis');
 // const ggRouter = require('./google');
 
 const initRoutes = (app) => {
@@ -25,6 +26,7 @@ const initRoutes = (app) => {
     app.use('/api/cart', cartRouter);
     app.use('/api/coupon', couponRouter);
     app.use('/api', feeback);
+    app.use('/api', Stat);
     // app.use('/api/google', ggRouter);
     app.use(notFound)
     app.use(errHandler)
