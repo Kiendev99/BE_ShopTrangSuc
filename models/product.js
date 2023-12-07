@@ -63,6 +63,13 @@ var productSchema = new mongoose.Schema({
             comment: { type: String }
         }
     ],
+    feedbacks: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: "Feedback",
+            autopopulate: true,
+        }
+    ],
     //Tổng số xếp hạng
     totalRatings: {
         type: Number,
