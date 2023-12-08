@@ -1,7 +1,8 @@
 const User = require('../models/user')
+const Product = require('../models/product')
 const asyncHandler = require('express-async-handler') // yarn add express-async-handler 
 const { generateAccessToken, generateRefreshToken } = require('../middlewares/jwt')
-const jwt = require('jsonwebtoken') 
+const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const sendMail = require('../ultils/sendMail')
 const bcrypt = require('bcrypt');
@@ -40,7 +41,7 @@ const login = asyncHandler(async (req, res) => {
     const response = await User.findOne({ email });
 
     if (response && (await response.isCorrectPassword(password))) {
-        
+
         const { password: _, ...userData } = response.toObject();
 
         const accessToken = generateAccessToken(response._id, response.role);
@@ -103,22 +104,22 @@ const deleteUser = asyncHandler(async (req, res) => {
 // Cập nhập Người dùng
 const updateUser = asyncHandler(async (req, res) => {
     const { _id, password } = req.body;
-  
+
     if (!_id || Object.keys(req.body).length === 0) {
-      throw new Error('Missing inputs');
+        throw new Error('Missing inputs');
     }
-  
+
     if (password) {
-      req.body.password = await bcrypt.hash(password, 10);
+        req.body.password = await bcrypt.hash(password, 10);
     }
-  
+
     const response = await User.findByIdAndUpdate(_id, req.body, { new: true }).select('-password -role -refreshToken');
-  
+
     return res.status(200).json({
-      success: !!response,
-      updatedUser: response ? response : 'Something went wrong',
+        success: !!response,
+        updatedUser: response ? response : 'Something went wrong',
     });
-  });
+});
 
 
 //Update Password
@@ -168,7 +169,7 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 const updateUserAddress = asyncHandler(async (req, res) => {
     const { _id } = req.user
     if (!req.body.address) throw new Error('Ko duoc bo trong')
-    const response = await User.findByIdAndUpdate(_id, { $push: {address: req.body.address }}, { new: true }).select('-password -role -refreshToken')
+    const response = await User.findByIdAndUpdate(_id, { $push: { address: req.body.address } }, { new: true }).select('-password -role -refreshToken')
     return res.status(200).json({
         success: response ? true : false,
         updatedUser: response ? response : 'Some thing went wrong'
@@ -177,32 +178,32 @@ const updateUserAddress = asyncHandler(async (req, res) => {
 
 const updateCart = asyncHandler(async (req, res) => {
     const { _id } = req.user
-    const {pid , quantity, size} = req.body
+    const { pid, quantity, size } = req.body
     if (!pid || !quantity || !size) throw new Error('Ko được để trống !')
     const user = await User.findById(_id).select('cart')
     const alreadyProduct = user?.cart?.find(el => el.product.toString() === pid)
     if (alreadyProduct) {
-        if(alreadyProduct.size === size){
-            const response = await User.updateOne({cart: { $elemMatch:alreadyProduct }}, { $set: {"cart.$.quantity":quantity}}, {new:true})
+        if (alreadyProduct.size === size) {
+            const response = await User.updateOne({ cart: { $elemMatch: alreadyProduct } }, { $set: { "cart.$.quantity": quantity } }, { new: true })
             return res.status(200).json({
                 success: response ? true : false,
                 updatedUser: response ? response : 'Some thing went wrong'
             })
-        }else{
-            const response = await User.findByIdAndUpdate(_id, {$push: {cart: {product: pid, quantity, size}}}, { new: true })
+        } else {
+            const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity, size } } }, { new: true })
             return res.status(200).json({
                 success: response ? true : false,
                 updatedUser: response ? response : 'Some thing went wrong'
             })
         }
     } else {
-        const response = await User.findByIdAndUpdate(_id, {$push: {cart: {product: pid, quantity, size}}}, { new: true })
+        const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity, size } } }, { new: true })
         return res.status(200).json({
             success: response ? true : false,
             updatedUser: response ? response : 'Some thing went wrong'
         })
     }
-   
+
 })
 
 
@@ -293,6 +294,63 @@ const getWishlist = asyncHandler(async (req, res) => {
     }
 });
 
+const addToFavorites = async (req, res) => {
+    const { _id } = req.user;
+
+    try {
+        const user = await User.findById(_id);
+      
+        const product = await Product.findById(req.params.productId);
+        
+
+        // Kiểm tra xem sản phẩm đã tồn tại trong danh sách yêu thích chưa
+        const isProductInWishlist = user.wishlist.some(wishlistProduct => wishlistProduct.equals(product._id));
+
+        if (!isProductInWishlist) {
+            user.wishlist.push(product);
+            await user.save();
+
+            return res.status(200).json({
+                message: "Đã thêm vào sản phẩm yêu thích",
+            });
+        } else {
+            return res.status(400).json({
+                message: "Sản phẩm đã tồn tại trong danh sách yêu thích",
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const delFavorites = async (req,res) =>{
+    const { _id } = req.user;
+    const productIdToRemove = req.params.productId;
+
+    try {
+        const user = await User.findById(_id);
+
+        // Kiểm tra xem sản phẩm có tồn tại trong danh sách yêu thích hay không
+        const isProductInWishlist = user.wishlist.some(wishlistProduct => wishlistProduct.equals(productIdToRemove));
+
+        if (isProductInWishlist) {
+            // Lọc danh sách để loại bỏ sản phẩm cần xóa
+            user.wishlist = user.wishlist.filter(wishlistProduct => !wishlistProduct.equals(productIdToRemove));
+            await user.save();
+
+            return res.status(200).json({
+                message: "Đã xóa khỏi danh sách yêu thích",
+            });
+        } else {
+            return res.status(404).json({
+                message: "Không tìm thấy sản phẩm trong danh sách yêu thích",
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+
+}
 const addCart = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { pid, quantity, size } = req.body;
@@ -344,8 +402,6 @@ const deleteCart = asyncHandler(async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, error: 'User not found.' });
         }
-
-        // Find the index of the cart item to be removed
         const cartIndex = user.cart.findIndex(cartItem => cartItem._id.toString() === cartId);
 
         if (cartIndex === -1) {
@@ -391,5 +447,7 @@ module.exports = {
     getWishlist,
     addCart,
     deleteCart,
-    updatePassword
+    updatePassword,
+    addToFavorites,
+    delFavorites
 }

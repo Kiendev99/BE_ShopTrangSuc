@@ -19,7 +19,8 @@ router.put('/address', [verifyAccessToken], ctrls.updateUserAddress)
 router.put('/cart', [verifyAccessToken], ctrls.updateCart)
 router.put('/:uid', [verifyAccessToken, isAdmin], ctrls.updateUserByAdmin)
 router.get('/wishlist', [verifyAccessToken], ctrls.getWishlist);
-
+router.post('/addFavorite/:productId', [verifyAccessToken], ctrls.addToFavorites);
+router.delete('/delFavorite/:productId', [verifyAccessToken], ctrls.delFavorites)
 router.post('/cart', verifyAccessToken, ctrls.addCart);
 router.delete('/cart', verifyAccessToken, ctrls.deleteCart);
 
