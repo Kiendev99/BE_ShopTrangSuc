@@ -7,6 +7,10 @@ var orderSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    name: {
+        type: String,
+        required: true,
+    },
     products: [
         {
             product: {
@@ -28,13 +32,15 @@ var orderSchema = new mongoose.Schema({
     address: {
         type: String,
         default: "",
-        require: true
+        required: true,
+        trim: true
     },
+
     mobile: {
         type: String,
-
-        unique: true,
+        required: true
     },
+
     totalPrice: {
         type: Number,
         required: true,

@@ -6,7 +6,7 @@ const config = require('config');
 const moment = require('moment');
 const querystring = require('qs');
 const crypto = require("crypto");
-
+const { v4: uuidv4 } = require('uuid');
 const asyncHandler = require('express-async-handler')
 
 function sortObject(obj) {
@@ -143,9 +143,13 @@ const createOrder = async (req, res) => {
         const userId = user._id;
         const orderData = {
             ...req.body,
+            code: uuidv4(),
             products: cartProducts,
             user: userId,
             status: orderStatus,
+            name: req.body.name,
+            mobile: req.body.mobile,
+            address: req.body.address,
         };
 
         const createdOrder = await Order.create(orderData);
@@ -198,6 +202,7 @@ const createOrder = async (req, res) => {
         return res.status(201).json({
             message: "Tạo đơn hàng thành công",
             order: createdOrder,
+            orderCode: createdOrder.code,
         });
     } catch (error) {
         console.log(error);
