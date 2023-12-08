@@ -8,7 +8,12 @@ var brandSchema = new mongoose.Schema({
         unique:true,
         index:true,
     },
-   
+    products: [
+        {
+          type: mongoose.Types.ObjectId,
+          ref: "Product",
+        },
+      ],
 },
     {timestamps:true}
 );

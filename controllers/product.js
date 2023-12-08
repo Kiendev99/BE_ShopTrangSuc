@@ -3,6 +3,7 @@ const Product = require('../models/product')
 const asyncHandler = require('express-async-handler')
 const slugify = require('slugify') //npm i slugify
 const Category = require('../models/category')
+const brand = require('../models/brand')
 // Thêm sản phẩm
 const createProduct = asyncHandler(async (req, res) => {
     const fileData = req.files;
@@ -41,7 +42,11 @@ const createProduct = asyncHandler(async (req, res) => {
             products: newProduct._id,
         },
     });
-
+    await brand.findByIdAndUpdate(newProduct.brand, {
+        $addToSet: {
+            products: newProduct._id,
+        },
+    });
     return res.status(200).json({
         success: newProduct ? 'Thêm sản phẩm thành công' : false,
         createdProduct: newProduct ? newProduct : 'Không thêm được sản phẩm mới',
@@ -289,7 +294,6 @@ module.exports = {
     getProducts,
     deleteProduct,
     updateProduct,
-
     ratings,
     getFilteredProducts
 }

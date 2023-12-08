@@ -19,10 +19,12 @@ var productSchema = new mongoose.Schema({
         required: true,
     },
     //thương hiệu
-    brand: {
-        type: String,
-        required: true
-    },
+    brand: 
+        {
+          type: mongoose.Types.ObjectId,
+          ref: "Brand",
+        },
+
     //Giá
     price: {
         type: Number,
