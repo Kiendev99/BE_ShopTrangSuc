@@ -146,6 +146,7 @@ const createOrder = async (req, res) => {
             user: userId,
             status: orderStatus,
             name: req.body.name,
+            note: req.body.note,
             mobile: req.body.mobile,
             address: req.body.address,
             email: req.body.email,

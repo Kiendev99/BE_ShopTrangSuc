@@ -41,7 +41,12 @@ var orderSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-
+    note: {
+        type: String,
+        default: "",
+        required: true,
+        
+    },
     mobile: {
         type: String,
         required: true
