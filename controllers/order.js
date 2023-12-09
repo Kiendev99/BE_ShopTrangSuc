@@ -143,13 +143,13 @@ const createOrder = async (req, res) => {
         const userId = user._id;
         const orderData = {
             ...req.body,
-            code: uuidv4(),
             products: cartProducts,
             user: userId,
             status: orderStatus,
             name: req.body.name,
             mobile: req.body.mobile,
             address: req.body.address,
+            email: req.body.email,
         };
 
         const createdOrder = await Order.create(orderData);
