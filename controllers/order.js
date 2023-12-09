@@ -6,7 +6,6 @@ const config = require('config');
 const moment = require('moment');
 const querystring = require('qs');
 const crypto = require("crypto");
-const { v4: uuidv4 } = require('uuid');
 const asyncHandler = require('express-async-handler')
 
 function sortObject(obj) {
