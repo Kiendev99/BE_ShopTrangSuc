@@ -224,6 +224,52 @@ const updateStatus = asyncHandler(async (req, res) => {
         response: response ? response : 'Ko thêm Order được!!'
     })
 })
+const updateStatusForuser = asyncHandler(async (req, res) => {
+    try {
+        const { oid } = req.params;
+        let { status } = req.body;
+
+        if (!status) {
+            throw new Error('Yêu cầu trạng thái');
+        }
+
+        // Nếu status là mảng, chấp nhận nhiều trạng thái hủy đơn hàng
+        if (Array.isArray(status)) {
+            const updatedOrders = await Order.updateMany(
+                { _id: { $in: status } },
+                { status: 'Đã hủy' }
+            );
+            return res.status(200).json({
+                success: true,
+                message: 'Cập nhật trạng thái đơn hàng thành công',
+                updatedOrders
+            });
+        } else {
+            // Nếu status không phải mảng, xử lý như trường hợp cập nhật một đơn hàng
+            const order = await Order.findByIdAndUpdate(oid, { status }, { new: true });
+
+            if (!order) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Không tìm thấy đơn hàng để cập nhật trạng thái'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'Cập nhật trạng thái đơn hàng thành công',
+                order
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Đã có lỗi xảy ra khi cập nhật trạng thái đơn hàng',
+            error: error.message,
+        });
+    }
+});
 
 
 
@@ -336,5 +382,6 @@ module.exports = {
     vnpayReturn,
     changeStatusPayment,
     getOrder,
-    getOrders
+    getOrders,
+    updateStatusForuser
 }
