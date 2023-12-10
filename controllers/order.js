@@ -136,7 +136,7 @@ const createOrder = async (req, res) => {
         const orderStatus =
             req.body.paymentMethod === "VN Pay"
                 ? "Chờ thanh toán"
-                : "Đang xử lý";
+                : "Đợi xác nhận";
 
         const cartProducts = userCart.products;
         const userId = user._id;
@@ -307,7 +307,35 @@ const getUserOrder = async (req, res) => {
         });
     }
 }
+const deleteProductOrder = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const productId = req.params.productId;
 
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { $pull: { products: { _id: productId } } },
+            { new: true }
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({
+                message: "Không tìm thấy đơn hàng để cập nhật",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Xóa sản phẩm thành công",
+            order: updatedOrder,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Đã có lỗi xảy ra khi xóa sản phẩm",
+            error: error.message,
+        });
+    }
+}
 
 
 
@@ -383,5 +411,6 @@ module.exports = {
     changeStatusPayment,
     getOrder,
     getOrders,
-    updateStatusForuser
+    updateStatusForuser,
+    deleteProductOrder
 }

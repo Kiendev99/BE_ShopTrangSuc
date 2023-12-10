@@ -79,6 +79,7 @@ var orderSchema = new mongoose.Schema({
             "Đã hủy",
             "Đã hoàn tiền",
             "Đã hoàn thành",
+            "Đợi xác nhận"
         ],
         default: "Đang xử lý",
     },
