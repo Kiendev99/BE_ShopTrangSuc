@@ -400,6 +400,35 @@ const getOrders = async (req, res) => {
         });
     }
 };
+const getOrdersByStatus = async (req, res) => {
+    try {
+        const { status } = req.query;
+
+        if (!status) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu trạng thái để lọc",
+            });
+        }
+
+        // Sử dụng status để tìm kiếm đơn hàng
+        const orders = await Order.find({ status }).populate('products.product');
+
+        return res.json({
+            success: true,
+            message: `Danh sách đơn hàng có trạng thái ${status}`,
+            orders: orders,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Đã có lỗi xảy ra khi lấy danh sách đơn hàng theo trạng thái",
+            error: error.message,
+        });
+    }
+};
+
 
 module.exports = {
     createOrder,
@@ -412,5 +441,6 @@ module.exports = {
     getOrder,
     getOrders,
     updateStatusForuser,
-    deleteProductOrder
+    deleteProductOrder,
+    getOrdersByStatus
 }
