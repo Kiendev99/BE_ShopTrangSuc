@@ -41,8 +41,9 @@ const addToCart = async (req, res) => {
       user.cart = data._id;
       await user.save();
     } else {
+
       const existingProduct = cart.products.find(
-        (item) => item.product.toString() === productId
+        (item) => item.product.toString() === productId && item.size === size
       );
 
       if (existingProduct) {
