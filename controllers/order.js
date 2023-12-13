@@ -228,8 +228,8 @@ const updateStatus = asyncHandler(async (req, res) => {
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'chien02003@gmail.com', // Điền email của bạn
-                    pass: 'fkck fbjf yrdz poqz'
+                    user: 'nrojewelry@gmail.com', // Điền email của bạn
+                    pass: 'rmui wqch uvbt hwyc'
                  }
             });
 
@@ -238,7 +238,7 @@ const updateStatus = asyncHandler(async (req, res) => {
             const purchaseDate = moment(createdAt).format('DD/MM/YYYY');
 
             const mailOptions = {
-                from: 'chien02003@gmail.com', // Điền email của bạn
+                from: 'nrojewelry@gmail.com', // Điền email của bạn
                 to: email, // Sử dụng địa chỉ email từ đơn hàng
                 subject: 'Cập nhật trạng thái đơn hàng',
                 html: `
