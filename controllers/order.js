@@ -7,7 +7,7 @@ const moment = require('moment');
 const querystring = require('qs');
 const crypto = require("crypto");
 const asyncHandler = require('express-async-handler')
-
+const nodemailer = require('nodemailer');
 function sortObject(obj) {
     let sorted = {};
     let str = [];
@@ -215,15 +215,69 @@ const createOrder = async (req, res) => {
 
 
 const updateStatus = asyncHandler(async (req, res) => {
-    const { oid } = req.params
-    const { status } = req.body
-    if (!status) throw new Error('Yeu cau trang thai')
-    const response = await Order.findByIdAndUpdate(oid, { status }, { new: true })
-    return res.json({
-        success: response ? 'Thêm Order thành công' : false,
-        response: response ? response : 'Ko thêm Order được!!'
-    })
-})
+    const { oid } = req.params;
+    const { status } = req.body;
+    if (!status) throw new Error('Yêu cầu trạng thái');
+
+    // Truy xuất thông tin đơn hàng từ cơ sở dữ liệu
+    const order = await Order.findById(oid);
+
+    // Gửi email nếu trạng thái được cập nhật thành công
+    if (order) {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'chien02003@gmail.com', // Điền email của bạn
+                    pass: 'fkck fbjf yrdz poqz'
+                 }
+            });
+
+            // Lấy thông tin người nhận từ đơn hàng
+            const { name, email, address, createdAt, paymentMethod } = order;
+            const purchaseDate = moment(createdAt).format('DD/MM/YYYY');
+
+            const mailOptions = {
+                from: 'chien02003@gmail.com', // Điền email của bạn
+                to: email, // Sử dụng địa chỉ email từ đơn hàng
+                subject: 'Cập nhật trạng thái đơn hàng',
+                html: `
+                    <p>Xin chào ${name},</p>
+                
+                    <p>Trạng thái của đơn hàng ${oid} đã được cập nhật thành ${status}.</p>
+                    <p>Ngày mua hàng: ${purchaseDate}</p>
+                    <p>Dịch vụ: ${paymentMethod}</p>
+                    <p>Địa chỉ giao hàng: ${address}</p>
+                    <p>Cảm ơn bạn đã mua hàng!</p>
+                `
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Gửi email thất bại:', error.message);
+                } else {
+                    console.log('Email đã được gửi:', info.response);
+                }
+            });
+            const response = await Order.findByIdAndUpdate(oid, { status }, { new: true })
+          
+            return res.json({
+                success: 'Cập nhật trạng thái đơn hàng thành công và đã gửi email thông báo'
+            });
+        } catch (error) {
+            console.error('Lỗi khi gửi email:', error.message);
+            return res.json({
+                success: 'Cập nhật trạng thái đơn hàng thành công, nhưng gửi email thất bại'
+            });
+        }
+    } else {
+        return res.json({
+            success: false,
+            response: 'Không tìm thấy đơn hàng để cập nhật trạng thái'
+        });
+    }
+});
+
 const updateStatusForuser = asyncHandler(async (req, res) => {
     try {
         const { oid } = req.params;
