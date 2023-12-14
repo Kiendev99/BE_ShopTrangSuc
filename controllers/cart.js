@@ -9,7 +9,7 @@ const getCartByUser = async (req, res) => {
       path: "products",
       populate: "product"
     });
-    console.log(cart);
+    // console.log(cart);
 
     return res.status(200).json({
       message: "Thông tin giỏ hàng",
@@ -48,6 +48,7 @@ const addToCart = async (req, res) => {
 
       if (existingProduct) {
         existingProduct.quantity += quantity;
+
       } else {
         cart.products.push({ product: productId, quantity: quantity, size: size });
       }
@@ -66,28 +67,21 @@ const addToCart = async (req, res) => {
 };
 
 
-
-
 const updateCart = async (req, res) => {
   const productId = req.body.productId;
   const quantity = req.body.quantity;
   const userId = req.body.userId;
+  const size = req.body.size
 
   try {
-
     const user = await userModel.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Người dùng không tồn tại.' });
-    }
-
-
-    let cart = await Cart.findById(user.cart);
+    const cart = await Cart.findById(user.cart);
 
     if (!cart) {
       return res.status(404).json({ error: 'Giỏ hàng không tồn tại.' });
     } else {
       const existingProduct = cart.products.find(
-        (item) => item.product.toString() === productId
+        (item) => item.product.toString() === productId && item.size === size
       );
 
       if (!existingProduct) {
@@ -96,7 +90,7 @@ const updateCart = async (req, res) => {
 
         existingProduct.quantity = quantity;
 
-        cart.totalPrice = TotalPrice(cart);
+        // cart.totalPrice = TotalPrice(cart);
 
 
         await cart.save();
@@ -128,7 +122,7 @@ const TotalPrice = (cart) => {
 const viewCart = async (req, res) => {
   try {
     const cartItems = await Cart.find().populate("product.productId");
-    console.log(cartItems);
+    // console.log(cartItems);
     const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
     const totalPrice = cartItems.reduce((total, item) => total + item.total, 0);
 
@@ -144,7 +138,7 @@ const clearCart = async (req, res) => {
   try {
 
     const user = await userModel.findById(userId);
-    console.log(userId)
+    // console.log(userId)
     if (!user) {
       return res.status(404).json({ error: 'Người dùng không tồn tại.' });
     }
@@ -178,7 +172,7 @@ const removeProduct = async (req, res) => {
   const idCart = req.params.id
 
   try {
-    console.log(productId);
+    // console.log(productId);
     // const user = await userModel.findById(userId);
     // if (!user) {
     //   return res.status(404).json({ error: 'Người dùng không tồn tại.' });
