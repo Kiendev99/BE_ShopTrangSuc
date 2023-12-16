@@ -1,5 +1,7 @@
 const Cart = require('../models/cart');
 const userModel = require('../models/user');
+const Size = require('../models/listSize');
+const Product = require('../models/product');
 
 
 const getCartByUser = async (req, res) => {
@@ -25,16 +27,16 @@ const getCartByUser = async (req, res) => {
 const addToCart = async (req, res) => {
   const productId = req.body.product;
   const quantity = req.body.quantity || 1;
-  const size = req.body.size;
   const userId = req.body.userId
 
   try {
     const user = await userModel.findById(userId);
     const cart = await Cart.findById(user.cart);
-
+    const listSize = await Size.find(req.body.listSize)
+    console.log(listSize);
     if (!cart) {
       const newCart = new Cart({
-        products: [{ product: productId, quantity, size }],
+        products: [{ product: productId, quantity, listSize }],
       });
 
       const data = await newCart.save();
@@ -43,14 +45,14 @@ const addToCart = async (req, res) => {
     } else {
 
       const existingProduct = cart.products.find(
-        (item) => item.product.toString() === productId && item.size === size
+        (item) => item.product.toString() === productId && item.listSize === listSize
       );
 
       if (existingProduct) {
         existingProduct.quantity += quantity;
 
       } else {
-        cart.products.push({ product: productId, quantity: quantity, size: size });
+        cart.products.push({ product: productId, quantity: quantity, size: listSize });
       }
 
       await cart.save();

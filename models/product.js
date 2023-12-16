@@ -18,11 +18,11 @@ var productSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    brand: 
-        {
-          type: mongoose.Types.ObjectId,
-          ref: "Brand",
-        },
+    brand:
+    {
+        type: mongoose.Types.ObjectId,
+        ref: "Brand",
+    },
 
     price: {
         type: Number,
@@ -37,7 +37,7 @@ var productSchema = new mongoose.Schema({
     },
     quantity: {
         type: Number,
-        
+
     },
     sold: {
         type: Number,
@@ -49,8 +49,14 @@ var productSchema = new mongoose.Schema({
 
     size: {
         type: String,
-        enum: ['6', '7', '8', '9','10','11']
+        enum: ['6', '7', '8', '9', '10', '11']
     },
+    list_size:
+    {
+        type: mongoose.Types.ObjectId,
+        ref: 'listSize'
+    }
+    ,
     ratings: [
         {
             star: { type: Number },

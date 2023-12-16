@@ -24,7 +24,7 @@ const createProduct = asyncHandler(async (req, res) => {
             error: 'Vui lòng cung cấp categoryId cho sản phẩm',
         });
     }
-  
+
     if (req.body.title) {
         req.body.slug = slugify(req.body.title);
     }
@@ -56,7 +56,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // Hiển thị 1 sản phẩm
 const getProduct = asyncHandler(async (req, res) => {
     const { pid } = req.params
-    const product = await Product.findById(pid)
+    const product = await Product.findById(pid).populate("list_size")
     return res.status(200).json({
         success: product ? 'Hiển thị sản phẩm thành công' : false,
         productData: product ? product : 'KO có sản phẩm'
@@ -65,9 +65,9 @@ const getProduct = asyncHandler(async (req, res) => {
 // Hiển thị tất cả sản phẩm
 // Filtering, sorting & pagination (Lọc Sắp xếp và phân trang)
 const getProducts = asyncHandler(async (req, res) => {
-    const queries = {...req.query}
+    const queries = { ...req.query }
     // tách các trường đặc biệt ra khỏi query
-    const excludeFields = ['limit','sort','page','fields']
+    const excludeFields = ['limit', 'sort', 'page', 'fields']
     excludeFields.forEach(el => delete queries[el]);
 
     //Format lại các operators cho đúng cú pháp mongoose 
@@ -75,12 +75,12 @@ const getProducts = asyncHandler(async (req, res) => {
     queryString = queryString.replace(/\b(gte|gt|lt|lte)\b/g, matchedEl => `$${matchedEl}`)
     const formattedQueries = JSON.parse(queryString)
     // Filtering lọc
-    if(queries?.title) formattedQueries.title = {$regex:queries.title,$options:'i'}
-	
+    if (queries?.title) formattedQueries.title = { $regex: queries.title, $options: 'i' }
+
     // Pagination
     const page = +req.query.page || 1; // Trang hiện tại
     const limit = +req.query.limit || process.env.LIMIT_PRODUCTS // Số lượng sản phẩm trên mỗi trang
-    const skip = (page -1) * limit
+    const skip = (page - 1) * limit
     try {
 
         // Tạo đối tượng truy vấn
@@ -89,7 +89,7 @@ const getProducts = asyncHandler(async (req, res) => {
 
 
         // Fields limiting (Hạn chế trường)
-          if (req.query?.fields) {
+        if (req.query?.fields) {
             const fieldsToInclude = req.query.fields.split(',').join(' ');
             queryCommand = queryCommand.select(fieldsToInclude);
         }
@@ -116,7 +116,7 @@ const getProducts = asyncHandler(async (req, res) => {
 
         // Thực thi truy vấn
         const response = await queryCommand.exec();
-        
+
 
         // Đếm số lượng sản phẩm thỏa mãn điều kiện
         const counts = await Product.find(formattedQueries).countDocuments();
@@ -149,33 +149,33 @@ const getProducts = asyncHandler(async (req, res) => {
     }
 
 
-   
-    
-   
+
+
+
 })
 
 const searchProduct = async (req, res) => {
     try {
-      const { search = "" } = req.body;
-  
-      const products = await Product.find();
-      const newProducts = products
-        .filter((item) => item.title.includes(search))
-      if (!products) {
+        const { search = "" } = req.body;
+
+        const products = await Product.find();
+        const newProducts = products
+            .filter((item) => item.title.includes(search))
+        if (!products) {
+            return res.json({
+                message: "Lấy danh sách thất bại",
+            });
+        }
         return res.json({
-          message: "Lấy danh sách thất bại",
+            message: "Lấy danh sách thành công.",
+            data: newProducts,
         });
-      }
-      return res.json({
-        message: "Lấy danh sách thành công.",
-        data: newProducts,
-      });
     } catch (error) {
-      return res.json({
-        message: error,
-      });
+        return res.json({
+            message: error,
+        });
     }
-  };
+};
 const getFilteredProducts = async (req, res) => {
     try {
         const { title, minPrice, maxPrice } = req.query;
@@ -211,7 +211,7 @@ const getFilteredProducts = async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
     const { pid } = req.params;
     const fileData = req.files;
-    
+
     try {
         let updatedFields = req.body;
 
@@ -225,7 +225,7 @@ const updateProduct = asyncHandler(async (req, res) => {
             // Lưu ý: Điều này giả sử bạn sử dụng middleware để xử lý file (ví dụ: multer)
             const newImages = req.files.map(file => file.path);
             updatedFields.images = [...newImages];
-            
+
             // Xóa hình ảnh cũ trên Cloudinary
             const oldProduct = await Product.findById(pid);
             oldProduct.images.forEach(async (oldImage) => {
@@ -275,38 +275,38 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 
 //
-const ratings = asyncHandler( async(req,res)=>{
-    const {_id} = req.user
-    const {star,comment,pid} = req.body
-    if(!star || !pid) throw new Error('KO dc bo trong')
+const ratings = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const { star, comment, pid } = req.body
+    if (!star || !pid) throw new Error('KO dc bo trong')
     const ratingProduct = await Product.findById(pid)
     const alreadyRating = ratingProduct?.ratings?.find(el => el.postedBy.toString() === _id)
     // console.log({alreadyRating});
-    if(alreadyRating){
+    if (alreadyRating) {
         //update star & coment
         await Product.updateOne({
-            ratings: { $elemMatch: alreadyRating}
+            ratings: { $elemMatch: alreadyRating }
         }, {
-            $set:{"ratings.$.star":star,"ratings.$.comment":comment}
-        },{new:true})
+            $set: { "ratings.$.star": star, "ratings.$.comment": comment }
+        }, { new: true })
 
-    }else{
+    } else {
         //add start %comment
-        await Product.findByIdAndUpdate(pid,{
-            $push:{ratings: {star,comment,postedBy:_id}}
-        },{new:true})
-       
+        await Product.findByIdAndUpdate(pid, {
+            $push: { ratings: { star, comment, postedBy: _id } }
+        }, { new: true })
+
     }
     // sum ratings
 
     const updateProduct = await Product.findById(pid)
     const ratingCount = updateProduct.ratings.length
-    const sumRatings = updateProduct.ratings.reduce((sum,el) => sum + +el.star,0)
-    updateProduct.totalRatings = Math.round(sumRatings * 10/ratingCount) / 10
+    const sumRatings = updateProduct.ratings.reduce((sum, el) => sum + +el.star, 0)
+    updateProduct.totalRatings = Math.round(sumRatings * 10 / ratingCount) / 10
     await updateProduct.save()
 
     return res.status(200).json({
-        status:true
+        status: true
     })
 })
 
