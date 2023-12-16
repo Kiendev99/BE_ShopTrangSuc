@@ -268,7 +268,7 @@ const updateStatus = asyncHandler(async (req, res) => {
             }
             
             return res.json({
-                success: 'Cập nhật trạng thái đơn hàng thành công và đã gửi email thông báo'
+                success: 'Cập nhật trạng thái đơn hàng thành công và đã gửi email thông báo.'
             });
         } catch (error) {
             console.error('Lỗi khi gửi email:', error.message);
