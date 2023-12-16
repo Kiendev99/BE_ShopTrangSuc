@@ -219,27 +219,26 @@ const updateStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
     if (!status) throw new Error('Yêu cầu trạng thái');
 
-    // Truy xuất thông tin đơn hàng từ cơ sở dữ liệu
+   
     const order = await Order.findById(oid);
 
-    // Gửi email nếu trạng thái được cập nhật thành công
     if (order) {
         try {
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'nrojewelry@gmail.com', // Điền email của bạn
+                    user: 'nrojewelry@gmail.com',
                     pass: 'rmui wqch uvbt hwyc'
                  }
             });
 
-            // Lấy thông tin người nhận từ đơn hàng
+           
             const { name, email, address, createdAt, paymentMethod } = order;
             const purchaseDate = moment(createdAt).format('DD/MM/YYYY');
 
             const mailOptions = {
-                from: 'nrojewelry@gmail.com', // Điền email của bạn
-                to: email, // Sử dụng địa chỉ email từ đơn hàng
+                from: 'nrojewelry@gmail.com',
+                to: email, 
                 subject: 'Cập nhật trạng thái đơn hàng',
                 html: `
                     <p>Xin chào ${name},</p>
@@ -259,8 +258,15 @@ const updateStatus = asyncHandler(async (req, res) => {
                     console.log('Email đã được gửi:', info.response);
                 }
             });
-            const response = await Order.findByIdAndUpdate(oid, { status }, { new: true })
-          
+            const response = await Order.findByIdAndUpdate(oid, { status }, { new: true });
+
+            if (!response) {
+                return res.json({
+                    success: false,
+                    response: 'Cập nhật trạng thái đơn hàng thất bại'
+                });
+            }
+            
             return res.json({
                 success: 'Cập nhật trạng thái đơn hàng thành công và đã gửi email thông báo'
             });
@@ -287,7 +293,6 @@ const updateStatusForuser = asyncHandler(async (req, res) => {
             throw new Error('Yêu cầu trạng thái');
         }
 
-        // Nếu status là mảng, chấp nhận nhiều trạng thái hủy đơn hàng
         if (Array.isArray(status)) {
             const updatedOrders = await Order.updateMany(
                 { _id: { $in: status } },
