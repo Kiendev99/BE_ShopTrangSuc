@@ -153,6 +153,29 @@ const getProducts = asyncHandler(async (req, res) => {
     
    
 })
+
+const searchProduct = async (req, res) => {
+    try {
+      const { search = "" } = req.body;
+  
+      const products = await Product.find();
+      const newProducts = products
+        .filter((item) => item.title.includes(search))
+      if (!products) {
+        return res.json({
+          message: "Lấy danh sách thất bại",
+        });
+      }
+      return res.json({
+        message: "Lấy danh sách thành công.",
+        data: newProducts,
+      });
+    } catch (error) {
+      return res.json({
+        message: error,
+      });
+    }
+  };
 const getFilteredProducts = async (req, res) => {
     try {
         const { title, minPrice, maxPrice } = req.query;
@@ -295,5 +318,6 @@ module.exports = {
     deleteProduct,
     updateProduct,
     ratings,
-    getFilteredProducts
+    getFilteredProducts,
+    searchProduct
 }
