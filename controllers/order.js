@@ -2,6 +2,7 @@ const Order = require('../models/order')
 const Cart = require('../models/cart')
 const User = require('../models/user')
 const Voucher = require('../models/coupon')
+const Product = require('../models/product')
 const config = require('config');
 const moment = require('moment');
 const querystring = require('qs');
@@ -192,7 +193,26 @@ const createOrder = async (req, res) => {
             },
             { new: true }
         );
+        const updateProductQuantity = async (product) => {
+            const productInStock = await Product.findById(product.product);
 
+            if (!productInStock || productInStock.quantity < product.quantity) {
+                throw new Error(`Sản phẩm ${product.product} không đủ số lượng trong kho.`);
+            }
+            const sizeIndex = productInStock.size.indexOf(product.product.size);
+            console.log(sizeIndex);
+            if (sizeIndex === -1) {
+                throw new Error(`Kích thước ${product.size} không hợp lệ cho sản phẩm ${product.product}.`);
+            }
+            if (productInStock.quantity === 0) {
+                throw new Error(`Sản phẩm ${product.product} đã hết hàng.`);
+            }
+
+            productInStock.quantity -= product.quantity;
+            await productInStock.save();
+        };
+
+        await Promise.all(cartProducts.map(updateProductQuantity));
         if (!updatedUser) {
             return res.status(404).json({
                 message: "Người dùng không tồn tại",
@@ -204,6 +224,9 @@ const createOrder = async (req, res) => {
             order: createdOrder,
             orderCode: createdOrder.code,
         });
+
+
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -219,7 +242,7 @@ const updateStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
     if (!status) throw new Error('Yêu cầu trạng thái');
 
-   
+
     const order = await Order.findById(oid);
 
     if (order) {
@@ -229,16 +252,16 @@ const updateStatus = asyncHandler(async (req, res) => {
                 auth: {
                     user: 'nrojewelry@gmail.com',
                     pass: 'rmui wqch uvbt hwyc'
-                 }
+                }
             });
 
-           
+
             const { name, email, address, createdAt, paymentMethod } = order;
             const purchaseDate = moment(createdAt).format('DD/MM/YYYY');
 
             const mailOptions = {
                 from: 'nrojewelry@gmail.com',
-                to: email, 
+                to: email,
                 subject: 'Cập nhật trạng thái đơn hàng',
                 html: `
                     <p>Xin chào ${name},</p>
@@ -266,7 +289,7 @@ const updateStatus = asyncHandler(async (req, res) => {
                     response: 'Cập nhật trạng thái đơn hàng thất bại'
                 });
             }
-            
+
             return res.json({
                 success: 'Cập nhật trạng thái đơn hàng thành công và đã gửi email thông báo.'
             });
@@ -429,7 +452,7 @@ const getOrder = async (req, res) => {
 const getOrders = async (req, res) => {
     try {
 
-        const orderIds = req.body.orderIds; 
+        const orderIds = req.body.orderIds;
 
         // Kiểm tra nếu không có ID đơn hàng
         if (!orderIds || orderIds.length === 0) {

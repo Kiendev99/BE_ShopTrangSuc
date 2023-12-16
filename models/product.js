@@ -12,20 +12,18 @@ var productSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        lowercase: true // viết thường
+        lowercase: true
     },
     description: {
         type: String,
         required: true,
     },
-    //thương hiệu
     brand: 
         {
           type: mongoose.Types.ObjectId,
           ref: "Brand",
         },
 
-    //Giá
     price: {
         type: Number,
         required: true
@@ -37,27 +35,22 @@ var productSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Category'
     },
-    //số lượng  
     quantity: {
         type: Number,
-        default: 200
+        
     },
-    // đã bán
     sold: {
         type: Number,
         default: 0
     },
-    // Đối với nhiều hình ảnh, sử dụng một mảng của chuỗi
     images: [{
         type: String
     }],
 
-    // màu
     size: {
         type: String,
-        enum: ['39', '40', '41', '42']
+        enum: ['6', '7', '8', '9','10','11']
     },
-    //Xếp hàng
     ratings: [
         {
             star: { type: Number },
@@ -72,7 +65,6 @@ var productSchema = new mongoose.Schema({
             autopopulate: true,
         }
     ],
-    //Tổng số xếp hạng
     totalRatings: {
         type: Number,
         default: 0
@@ -81,5 +73,4 @@ var productSchema = new mongoose.Schema({
     timestamps: true
 });
 
-//Export the model
 module.exports = mongoose.model('Product', productSchema);
