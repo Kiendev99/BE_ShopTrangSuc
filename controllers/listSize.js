@@ -18,10 +18,28 @@ const getAllSize = asyncHandler(async(req,res)=>{
         getAllSize : response ? response : 'Ko hiển thị size được!!'
     })
 })
+const deleteSize = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const response = await listSize.findByIdAndDelete(id)
+    return res.json({
+        success: response ? 'Xóa Size thành công' : false,
+        deleteSize: response ? response : 'Ko xóa Size được!!'
+    })
+})
 
+const updateSize = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const response = await listSize.findByIdAndUpdate(id, req.body, { new: true })
+    return res.json({
+        success: response ? 'Cập nhập Size thành công' : false,
+        updateSize: response ? response : 'Ko cập nhập Size được!!'
+    })
+})
 module.exports = {
     createdSize,
-    getAllSize
+    getAllSize,
+    deleteSize,
+    updateSize
     // getAllBrand,
     // updateBrand,
     // deleteBrand,

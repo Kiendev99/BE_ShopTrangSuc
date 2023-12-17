@@ -7,8 +7,8 @@ const { verifyAccessToken, isAdmin } = require('../middlewares/verifyToken')
 router.post('/add', [verifyAccessToken, isAdmin], ctrls.createdSize)
 router.get('/', ctrls.getAllSize)
 // router.get('/:id', ctrls.getBrand)
-// router.put('/:brid', [verifyAccessToken, isAdmin], ctrls.updateBrand)
-// router.delete('/:brid', [verifyAccessToken, isAdmin], ctrls.deleteBrand)
+router.put('/:id', [verifyAccessToken, isAdmin], ctrls.updateSize)
+router.delete('/:id', [verifyAccessToken, isAdmin], ctrls.deleteSize)
 // router.get('/brand/:brand', ctrls.getProductsByBrandId);
 
 
