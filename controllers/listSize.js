@@ -26,7 +26,14 @@ const deleteSize = asyncHandler(async (req, res) => {
         deleteSize: response ? response : 'Ko xóa Size được!!'
     })
 })
-
+const getSize = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const response = await Size.findById(id);
+    return res.json({
+        success: response ? 'Hiển thị Size thành công' : false,
+        getSize: response ? response : 'Không tìm thấy Size!!',
+    });
+});
 const updateSize = asyncHandler(async (req, res) => {
     const { id } = req.params
     const response = await listSize.findByIdAndUpdate(id, req.body, { new: true })
@@ -39,7 +46,8 @@ module.exports = {
     createdSize,
     getAllSize,
     deleteSize,
-    updateSize
+    updateSize,
+    getSize
     // getAllBrand,
     // updateBrand,
     // deleteBrand,
