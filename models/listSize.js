@@ -14,8 +14,6 @@ var listSizeSchema = new mongoose.Schema({
                 required: false,
             },
         },
-     
-
     ],
     name: String
 

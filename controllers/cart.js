@@ -32,7 +32,7 @@ const addToCart = async (req, res) => {
   try {
     const user = await userModel.findById(userId);
     const cart = await Cart.findById(user.cart);
-    const listSize = await Size.find(req.body.listSize)
+    const listSize = await Size.findById(req.body.listSize).populate('list_size')
     console.log(listSize);
     if (!cart) {
       const newCart = new Cart({
@@ -45,7 +45,7 @@ const addToCart = async (req, res) => {
     } else {
 
       const existingProduct = cart.products.find(
-        (item) => item.product.toString() === productId && item.listSize === listSize
+        (item) => item.product === productId && item.listSize === listSize
       );
 
       if (existingProduct) {

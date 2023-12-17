@@ -46,11 +46,6 @@ var productSchema = new mongoose.Schema({
     images: [{
         type: String
     }],
-
-    size: {
-        type: String,
-        enum: ['6', '7', '8', '9', '10', '11']
-    },
     list_size:
     {
         type: mongoose.Types.ObjectId,
