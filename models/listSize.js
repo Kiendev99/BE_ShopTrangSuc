@@ -13,8 +13,13 @@ var listSizeSchema = new mongoose.Schema({
                 type: Number,
                 required: false,
             },
-        }
-    ]
+        },
+     
+
+    ],
+    name: String
+
+
 },
     { timestamps: true }
 );

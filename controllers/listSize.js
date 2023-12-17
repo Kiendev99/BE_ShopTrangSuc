@@ -1,6 +1,7 @@
 const Size = require('../models/listSize');
 const asyncHandler = require('express-async-handler')
 const Product = require('../models/product');
+const listSize = require('../models/listSize');
 
 
 const createdSize = asyncHandler(async (req, res) => {
@@ -10,10 +11,17 @@ const createdSize = asyncHandler(async (req, res) => {
         createdBrand: response ? response : 'Ko thêm Size được!!'
     })
 })
-
+const getAllSize = asyncHandler(async(req,res)=>{
+    const response = await listSize.find()
+    return res.json({
+        success : response ? 'Hiển thị size thành công' : false,
+        getAllSize : response ? response : 'Ko hiển thị size được!!'
+    })
+})
 
 module.exports = {
     createdSize,
+    getAllSize
     // getAllBrand,
     // updateBrand,
     // deleteBrand,
