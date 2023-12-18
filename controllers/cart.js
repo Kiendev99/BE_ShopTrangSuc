@@ -7,9 +7,14 @@ const Product = require('../models/product');
 const getCartByUser = async (req, res) => {
   try {
     const cartId = req.params.id;
-    const cart = await Cart.findById(cartId).populate("products._id").populate({
+    const cart = await Cart.findById(cartId).populate({
       path: "products",
-      populate: "product"
+      populate: {
+        path: "product",
+        populate: {
+          path: "list_size"
+        }
+      }
     });
     // console.log(cart);
 
@@ -27,16 +32,16 @@ const getCartByUser = async (req, res) => {
 const addToCart = async (req, res) => {
   const productId = req.body.product;
   const quantity = req.body.quantity || 1;
+  const size = req.body.size || 1;
   const userId = req.body.userId
 
   try {
     const user = await userModel.findById(userId);
     const cart = await Cart.findById(user.cart);
-    const listSize = await Size.findById(req.body.listSize).populate('list_size')
-    console.log(listSize);
+
     if (!cart) {
       const newCart = new Cart({
-        products: [{ product: productId, quantity, listSize }],
+        products: [{ product: productId, quantity, size }],
       });
 
       const data = await newCart.save();
@@ -45,14 +50,16 @@ const addToCart = async (req, res) => {
     } else {
 
       const existingProduct = cart.products.find(
-        (item) => item.product === productId && item.listSize === listSize
+        (item) => item.product.toString() === productId && item.size === size
       );
 
+      console.log(productId, size, cart.products);
+      
       if (existingProduct) {
         existingProduct.quantity += quantity;
 
       } else {
-        cart.products.push({ product: productId, quantity: quantity, size: listSize });
+        cart.products.push({ product: productId, quantity: quantity, size: size });
       }
 
       await cart.save();
