@@ -4,6 +4,7 @@
 
     router.post('/', [verifyAccessToken], ctrls.createOrder)
     router.put('/status/:oid', ctrls.updateStatus)
+    router.put('/statusSendEmail/:oid', ctrls.updateStatusSendEmail)
     router.put('/statusUser/:oid', ctrls.updateStatusForuser)
     router.get('/getUserOder/:userId', ctrls.getUserOrder)
     router.get('/getAll', ctrls.getAllOrders)

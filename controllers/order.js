@@ -236,8 +236,17 @@ const createOrder = async (req, res) => {
 }
 
 
-
-const updateStatus = asyncHandler(async (req, res) => {
+const updateStatus = asyncHandler(async(req,res)=>{
+    const { oid } = req.params
+    const { status } = req.body
+    if(!status) throw new Error('Yeu cau trang thai')
+    const response = await Order.findByIdAndUpdate(oid, { status }, {new:true})
+    return res.json({
+        success : response ? 'Cập nhật Order thành công' : false,
+        response : response ? response : 'Ko cập nhật Order được!!'
+    })
+})
+const updateStatusSendEmail = asyncHandler(async (req, res) => {
     const { oid } = req.params;
     const { status } = req.body;
     if (!status) throw new Error('Yêu cầu trạng thái');
@@ -524,5 +533,6 @@ module.exports = {
     getOrders,
     updateStatusForuser,
     deleteProductOrder,
-    getOrdersByStatus
+    getOrdersByStatus,
+    updateStatusSendEmail
 }
