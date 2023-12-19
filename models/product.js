@@ -42,6 +42,11 @@ var productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    //danh gia
+    
+    assess: {
+        type: Number,
+    },
     images: [{
         type: String
     }],
