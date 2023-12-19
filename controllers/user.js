@@ -340,6 +340,7 @@ const delFavorites = async (req,res) =>{
 
             return res.status(200).json({
                 message: "Đã xóa khỏi danh sách yêu thích",
+                productIdToRemove
             });
         } else {
             return res.status(404).json({
