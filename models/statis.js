@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const statisSchema = new mongoose.Schema({
-    
+
     totalOrders: {
         type: Number,
         default: 0,
@@ -16,16 +16,15 @@ const statisSchema = new mongoose.Schema({
         default: {},
     },
     totalUsers: {
-        type: Number,
-        default: 0,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
     },
     bestSellingProduct: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
     },
 },
-{ timestamps: true }
+    { timestamps: true }
 )
 
 module.exports = mongoose.model('Statis', statisSchema);
- 

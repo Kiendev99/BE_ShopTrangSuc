@@ -152,7 +152,7 @@ const createOrder = async (req, res) => {
       email: req.body.email,
     };
 
-    // console.log(">>>cart",cartProducts);
+
 
     const createdOrder = await Order.create(orderData);
     if (!createdOrder) {
@@ -454,7 +454,13 @@ const deleteProductOrder = async (req, res) => {
 };
 
 const getAllOrders = asyncHandler(async (req, res) => {
-  const response = await Order.find().populate("products.product");
+  const response = await Order.find().populate({
+    path: "products",
+    populate: {
+      path: "product",
+      populate: "list_size"
+    }
+  });
   return res.json({
     success: response ? "Hien thi Order thành công" : false,
     response: response ? response : "Ko thêm Order được!!",
@@ -487,19 +493,19 @@ const getOrders = async (req, res) => {
   try {
     const orderIds = req.body.orderIds;
 
-    // Kiểm tra nếu không có ID đơn hàng
+
     if (!orderIds || orderIds.length === 0) {
       return res.status(400).json({
         message: "Không có ID đơn hàng được cung cấp",
       });
     }
 
-    // Tìm tất cả đơn hàng dựa trên mảng ID
+
     const orders = await Order.find({ _id: { $in: orderIds } }).populate({
       path: "products",
       populate: {
-        path:"product",
-        populate:"list_size"
+        path: "product",
+        populate: "list_size"
       },
     });
 
@@ -531,7 +537,7 @@ const getOrdersByStatus = async (req, res) => {
       });
     }
 
-    // Sử dụng status để tìm kiếm đơn hàng
+
     const orders = await Order.find({ status }).populate("products.product");
 
     return res.json({

@@ -299,9 +299,9 @@ const addToFavorites = async (req, res) => {
 
     try {
         const user = await User.findById(_id);
-      
+
         const product = await Product.findById(req.params.productId);
-        
+
 
         // Kiểm tra xem sản phẩm đã tồn tại trong danh sách yêu thích chưa
         const isProductInWishlist = user.wishlist.some(wishlistProduct => wishlistProduct.equals(product._id));
@@ -323,7 +323,7 @@ const addToFavorites = async (req, res) => {
     }
 }
 
-const delFavorites = async (req,res) =>{
+const delFavorites = async (req, res) => {
     const { _id } = req.user;
     const productIdToRemove = req.params.productId;
 
