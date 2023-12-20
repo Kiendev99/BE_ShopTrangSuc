@@ -1,21 +1,34 @@
-
-const Feedback = require('../models/feedback')
-
+const Feedback = require('../models/feedback');
 const Product = require('../models/product');
 
-// const getFeedbacks = async (req, res) => {
-//   try {
-//     const feedbacks = await Feedback.find();
-//     return res.json({
-//       message: "Danh sách phản hồi",
-//       data: feedbacks,
-//     });
-//   } catch (error) {
-//     return res.json({
-//       message: error,
-//     });
-//   }
-// };
+const getall = async (req, res) => {
+  try {
+    // Lấy tất cả dữ liệu phản hồi
+    const feedbacks = await Feedback.find();
+
+    // Tạo một mảng chứa thông tin sản phẩm và phản hồi kết hợp
+    const combinedData = await Promise.all(feedbacks.map(async (feedback) => {
+      // Lấy thông tin sản phẩm tương ứng với phản hồi
+      const product = await Product.findById(feedback.productId);
+
+      // Kết hợp thông tin sản phẩm và phản hồi
+      return {
+        feedback: feedback,
+        product: product,
+      };
+    }));
+
+    return res.json({
+      message: "Danh sách phản hồi và thông tin sản phẩm",
+      data: combinedData,
+    });
+  } catch (error) {
+    return res.json({
+      message: error.message,
+    });
+  }
+};
+
 
 const createFeedback = async (req, res) => {
   try {
@@ -147,4 +160,5 @@ module.exports = {
   getFeedback,
   createFeedback,
   updateFeedback,
+  getall
 };

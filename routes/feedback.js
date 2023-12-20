@@ -11,5 +11,5 @@ router.post("/feedback", ctrls.createFeedback)
 router.put("/feedback/:id", ctrls.updateFeedback)
 router.delete("/feedback/:id", ctrls.removeFeedback)
 router.get("/feedback/:id", ctrls.getFeedback)
-
+router.get("/feedback/", ctrls.getall)
 module.exports = router

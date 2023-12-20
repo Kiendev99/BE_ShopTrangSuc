@@ -71,7 +71,7 @@ const getStatistics = async (req, res) => {
         ]);
 
         const confirmedOrdersTotal = await Order.aggregate([
-            { $match: { ...matchCondition, status: "Đã giao hàng" } },
+            { $match: { ...matchCondition, status: { $in: ["Đợi xác nhận", "Đã xác nhận", "Đang giao hàng"] }  } },
             { $group: { _id: null, total: { $sum: "$totalPrice" } } }
         ]);
 
