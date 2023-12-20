@@ -72,7 +72,7 @@ var orderSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: [
-            "Chờ thanh toán",
+            "Đã thanh toán",
             "Đang xử lý",
             "Đang giao hàng",
             "Đã giao hàng",

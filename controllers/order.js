@@ -136,7 +136,7 @@ const createOrder = async (req, res) => {
     }
 
     const orderStatus =
-      req.body.paymentMethod === "VN Pay" ? "Chờ thanh toán" : "Đợi xác nhận";
+      req.body.paymentMethod === "VN Pay" ? "Đã thanh toán" : "Đợi xác nhận";
 
     const cartProducts = userCart.products;
     const userId = user._id;
