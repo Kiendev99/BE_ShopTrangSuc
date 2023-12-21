@@ -14,5 +14,6 @@ router.put('/:pid', uploadCloudinary.array('image', 5), [verifyAccessToken, isAd
 router.post("/search-product", ctrls.searchProduct)
 
 router.put('/ratings/add',verifyAccessToken, ctrls.ratings)
+router.put('/:pid/updateAssess', [verifyAccessToken], ctrls.updateAssess);
 
 module.exports = router

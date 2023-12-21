@@ -33,7 +33,7 @@ const addToCart = async (req, res) => {
   const productId = req.body.product;
   const quantity = req.body.quantity || 1;
   const size = req.body.size || 1;
-  const userId = req.body.userId
+  const userId = req.body.userId;
 
   try {
     const user = await userModel.findById(userId);
@@ -48,25 +48,25 @@ const addToCart = async (req, res) => {
       user.cart = data._id;
       await user.save();
     } else {
-
+      // Check if the product with the same productId and size already exists in the cart
       const existingProduct = cart.products.find(
         (item) => item.product.toString() === productId && item.size === size
       );
 
-      console.log(productId, size, cart.products);
-      
       if (existingProduct) {
-        existingProduct.quantity += quantity;
-
-      } else {
-        cart.products.push({ product: productId, quantity: quantity, size: size });
+        return res.status(400).json({
+          message: "Sản phẩm đã tồn tại trong giỏ hàng với kích thước đã chọn.",
+        });
       }
 
+      // If the product doesn't exist, add it to the cart
+      cart.products.push({ product: productId, quantity, size });
       await cart.save();
     }
 
     return res.status(200).json({
       message: "Sản phẩm đã được thêm vào giỏ hàng",
+      cart: user.cart,
     });
   } catch (error) {
     return res.status(500).json({
@@ -74,6 +74,7 @@ const addToCart = async (req, res) => {
     });
   }
 };
+
 
 
 const updateCart = async (req, res) => {

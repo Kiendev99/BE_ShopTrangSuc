@@ -236,6 +236,10 @@ const updateProduct = asyncHandler(async (req, res) => {
                 // });
             });
         }
+        if (req.body.assess) {
+            updatedFields.assess = req.body.assess;
+        }
+
 
         const updatedProduct = await Product.findByIdAndUpdate(pid, updatedFields, { new: true });
 
@@ -309,7 +313,47 @@ const ratings = asyncHandler(async (req, res) => {
         status: true
     })
 })
+const updateAssess = asyncHandler(async (req, res) => {
+    const { pid } = req.params;
 
+    try {
+        const { assess } = req.body;
+
+        // Validate if assess is provided
+        if (assess === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng cung cấp đánh giá (assess) để cập nhật',
+            });
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            pid,
+            { assess },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy sản phẩm để cập nhật',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Cập nhật đánh giá sản phẩm thành công',
+            updatedProduct,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Lỗi khi cập nhật đánh giá sản phẩm',
+            error: error.message,
+        });
+    }
+});
 
 module.exports = {
     createProduct,
@@ -319,5 +363,6 @@ module.exports = {
     updateProduct,
     ratings,
     getFilteredProducts,
+    updateAssess,
     searchProduct
 }
