@@ -354,6 +354,39 @@ const updateAssess = asyncHandler(async (req, res) => {
         });
     }
 });
+// Ẩn hiện sản phẩm
+const activeProduct = asyncHandler(async (req, res) => {
+    try {
+        const { proId } = req.params;
+        const { active } = req.body;
+        const isActive = active === true;
+
+
+       
+        const fixProduct = await Product.findByIdAndUpdate(proId, { active: isActive }, { new: true });
+
+        if (!isActive) {
+            return res.status(200).json({
+                success: true,
+                message: 'Sản phẩm đã được ẩn',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Cập nhật sản phẩm thành công',
+            fixProduct,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: 'Lỗi khi cập nhật sản phẩm',
+            error: err.message,
+        });
+    }
+});
+
 
 module.exports = {
     createProduct,
@@ -364,5 +397,6 @@ module.exports = {
     ratings,
     getFilteredProducts,
     updateAssess,
-    searchProduct
+    searchProduct,
+    activeProduct
 }

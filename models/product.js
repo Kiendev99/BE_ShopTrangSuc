@@ -36,14 +36,14 @@ var productSchema = new mongoose.Schema({
     },
     quantity: {
         type: Number,
-        
+
     },
     sold: {
         type: Number,
         default: 0
     },
     //danh gia
-    
+
     assess: {
         type: Number,
     },
@@ -73,6 +73,10 @@ var productSchema = new mongoose.Schema({
     totalRatings: {
         type: Number,
         default: 0
+    },
+    active: {
+        type: Boolean,
+        default: true,
     }
 }, {
     timestamps: true

@@ -309,11 +309,28 @@ const updateStatusSendEmail = asyncHandler(async (req, res) => {
           console.log("Email đã được gửi:", info.response);
         }
       });
+      const updateProductQuantity = async (product) => {
+        const productFInd = await Product.findById(product.product);
+        const listSize = await Size.findById(productFInd.list_size);
+
+        const sizeUpdate = listSize.list_size.find(
+          (item) => item.name === product.size.toString()
+        );
+
+        if (sizeUpdate) {
+          sizeUpdate.quantity += product.quantity;
+        }
+
+        await listSize.save();
+      };
       const response = await Order.findByIdAndUpdate(
         oid,
         { status },
         { new: true }
       );
+      if (status === "Đã hủy") {
+        await Promise.all(response.products.map(updateProductQuantity));
+      }
 
       if (!response) {
         return res.json({
