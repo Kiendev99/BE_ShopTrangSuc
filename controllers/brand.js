@@ -64,7 +64,7 @@ const getProductsByBrandId = asyncHandler(async (req, res) => {
     }
 
     // Tìm tất cả sản phẩm thuộc brand có brand
-    const products = await Product.find({ brand });
+    const products = await Product.find({ brand, active: true });
 
     return res.json({
         success: true,

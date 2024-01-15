@@ -27,7 +27,7 @@ const initRoutes = (app) => {
     app.use('/api/cart', cartRouter);
     app.use('/api/coupon', couponRouter);
     app.use('/api', feeback);
-    app.use('/api', Stat);
+    app.use('/api/statis', Stat);
     app.use('/api/size', sizeRouter)
     // app.use('/api/google', ggRouter);
     app.use(notFound)

@@ -3,21 +3,21 @@ const asyncHandler = require('express-async-handler')
 const Product = require('../models/product');
 
 
-const createdCategory = asyncHandler(async(req,res)=>{
+const createdCategory = asyncHandler(async (req, res) => {
     const response = await Category.create(req.body)
     return res.json({
-        success : response ? 'Thêm category thành công' : false,
-        createdCategory : response ? response : 'Ko thêm category được!!'
+        success: response ? 'Thêm category thành công' : false,
+        createdCategory: response ? response : 'Ko thêm category được!!'
     })
 })
 
 
 
-const getAllCategory = asyncHandler(async(req,res)=>{
+const getAllCategory = asyncHandler(async (req, res) => {
     const response = await Category.find().select('title _id')
     return res.json({
-        success : response ? 'Hiển thị category thành công' : false,
-        getAllCategory : response ? response : 'Ko hiển thị category được!!'
+        success: response ? 'Hiển thị category thành công' : false,
+        getAllCategory: response ? response : 'Ko hiển thị category được!!'
     })
 })
 
@@ -33,23 +33,23 @@ const getOneCategory = asyncHandler(async (req, res) => {
 
 
 
-const updateCategory = asyncHandler(async(req,res)=>{
-    const {pcid} = req.params
-    const response = await Category.findByIdAndUpdate(pcid,req.body,{new:true})
+const updateCategory = asyncHandler(async (req, res) => {
+    const { pcid } = req.params
+    const response = await Category.findByIdAndUpdate(pcid, req.body, { new: true })
     return res.json({
-        success : response ? 'Cập nhập category thành công' : false,
-        updateCategory : response ? response : 'Ko cập nhập category được!!'
+        success: response ? 'Cập nhập category thành công' : false,
+        updateCategory: response ? response : 'Ko cập nhập category được!!'
     })
 })
 
 
 
-const deleteCategory = asyncHandler(async(req,res)=>{
-    const {pcid} = req.params
+const deleteCategory = asyncHandler(async (req, res) => {
+    const { pcid } = req.params
     const response = await Category.findByIdAndDelete(pcid)
     return res.json({
-        success : response ? 'Xóa Category thành công' : false,
-        deleteCategory : response ? response : 'Ko xóa category được!!'
+        success: response ? 'Xóa Category thành công' : false,
+        deleteCategory: response ? response : 'Ko xóa category được!!'
     })
 })
 
@@ -68,7 +68,7 @@ const getProductsByCategoryId = asyncHandler(async (req, res) => {
     }
 
     // Tìm tất cả sản phẩm thuộc category có category
-    const products = await Product.find({ category });
+    const products = await Product.find({ category, active: true });
 
     return res.json({
         success: true,

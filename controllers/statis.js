@@ -17,15 +17,12 @@ const getStatistics = async (req, res) => {
             };
         }
 
-
         const totalOrders = await Order.countDocuments(matchCondition);
-
 
         const cancelledOrders = await Order.countDocuments({
             ...matchCondition,
             status: 'Đã hủy',
         });
-
 
         const validOrders = totalOrders - cancelledOrders;
 
@@ -71,7 +68,7 @@ const getStatistics = async (req, res) => {
         ]);
 
         const confirmedOrdersTotal = await Order.aggregate([
-            { $match: { ...matchCondition, status: { $in: ["Đợi xác nhận", "Đã xác nhận", "Đang giao hàng"] }  } },
+            { $match: { ...matchCondition, status: { $in: ["Đợi xác nhận", "Đã xác nhận", "Đang giao hàng"] } } },
             { $group: { _id: null, total: { $sum: "$totalPrice" } } }
         ]);
 
@@ -156,13 +153,13 @@ const getTopBuyers = async (req, res) => {
         const topBuyers = await Order.aggregate([
             { $match: matchCondition },
             { $unwind: "$user" },
-            { $group: { _id: "$user", totalAmount: { $sum: "$totalPrice" } } },
-            { $sort: { totalAmount: -1 } },
+            { $group: { _id: "$user", totalPrice: { $sum: "$totalPrice" } } },
+            { $sort: { totalPrice: -1 } },
             { $limit: 5 }
         ]);
 
 
-        const topBuyersWithDetails = await User.populate(topBuyers, { path: '_id', select: 'firstname lastname email' });
+        const topBuyersWithDetails = await User.populate(topBuyers, { path: '_id', select: 'firstname lastname email orders' });
 
         return res.status(200).json({
             success: true,
@@ -174,8 +171,171 @@ const getTopBuyers = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+const getTopProductSeller = async (req, res) => {
+    try {
+        const topProducts = await Product.find({})
+            .sort({ sold: -1 })
+            .select("title price sold")
+            .limit(5);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Top 5 sản phẩm mua hàng nhiều nhất',
+            topProducts: topProducts,
+        });
+    } catch (error) {
+        console.error("Error getting top buyers:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+const getTotalPriceMonth = async (req, res) => {
+    try {
+        let matchCondition = {}
+
+        const { startYear, endYear } = req.body;
+
+        const startDate = new Date(`${startYear}-01T00:00:00.000Z`);
+        const endDate = new Date(`${endYear}-12-31T23:59:59.999Z`);
+
+        matchCondition.createdAt = {
+            $gte: startDate,
+            $lte: endDate,
+        };
+
+        const result = await Order.aggregate([
+            {
+                $match: {
+                    status: { $nin: ["Đã hủy"] },
+                    ...matchCondition
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    totalPrice: { $sum: "$totalPrice" }
+                }
+            },
+        ]);
+
+        const finalData = [];
+        const currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+            const formattedMonth = currentDate.toISOString().slice(0, 7);
+
+            // Kiểm tra xem tháng này có trong kết quả không
+            const foundMonth = result.find(item => item._id === formattedMonth);
+
+            // Chỉ thêm vào finalData nếu nằm trong khoảng thời gian đã chọn
+            if (currentDate >= startDate && currentDate <= endDate) {
+                if (foundMonth) {
+                    finalData.push({ month: formattedMonth, totalAmount: foundMonth.totalPrice });
+                } else {
+                    finalData.push({ month: formattedMonth, totalAmount: 0 });
+                }
+            }
+
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+        const totalAmountAllMonths = finalData.reduce((total, monthData) => total + monthData.totalAmount, 0);
+
+        console.log(totalAmountAllMonths);
+
+        res.json({ result: finalData, totalAmountAllMonths });
+    } catch (error) {
+        console.error("Lỗi khi lấy tổng tiền theo khoảng thời gian:", error);
+        res.status(500).json({ error: "Đã xảy ra lỗi khi lấy tổng tiền theo khoảng thời gian" });
+    }
+}
+
+const getTotalPriceDay = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.body;
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const datesInRange = [];
+
+        // Tạo mảng chứa tất cả ngày trong khoảng thời gian
+        const currentDate = new Date(start);
+        while (currentDate <= end) {
+            datesInRange.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        const result = await Order.aggregate([
+            {
+                $match: {
+                    status: { $nin: ["Đã hủy", "Đã hoàn tiền"] },
+                    createdAt: {
+                        $gte: new Date(startDate),
+                        $lt: new Date(endDate)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    totalAmount: { $sum: "$totalPrice" }
+                }
+            },
+            {
+                $sort: { _id: 1 } // Sắp xếp theo ngày tăng dần
+            }
+        ]);
+
+        const logData = {};
+
+        result.forEach(item => {
+            logData[item._id] = item.totalAmount;
+        });
+
+        console.log("Tất cả các ngày trong khoảng thời gian:");
+        console.log(datesInRange);
+
+        console.log("Tổng tiền từng ngày trong khoảng thời gian:");
+        console.log(logData);
+
+        // Kiểm tra và log những ngày không có dữ liệu từ kết quả truy vấn
+        datesInRange.forEach(date => {
+            const dateString = date.toISOString().split('T')[0];
+            if (!logData.hasOwnProperty(dateString)) {
+                logData[dateString] = 0;
+            }
+        });
+
+        // Tạo mảng giống dailyTotals từ kết quả truy vấn và logData
+        const dailyTotals = datesInRange.map(date => {
+            const dateString = date.toISOString().split('T')[0];
+            return {
+                _id: dateString,
+                totalAmount: logData[dateString]
+            };
+        });
+
+        console.log("Tổng tiền từng ngày trong khoảng thời gian sau khi kiểm tra:");
+        console.log(logData);
+
+        // Tính totalAmountInRange từ logData
+        const totalAmountInRange = Object.values(logData).reduce((total, amount) => total + amount, 0);
+
+        console.log("Tổng tổng tiền trong khoảng thời gian:", totalAmountInRange);
+
+        res.json({ dailyTotals, logData, totalAmountInRange });
+
+    } catch (error) {
+        console.error("Lỗi khi lấy tổng tiền từng ngày trong khoảng thời gian:", error);
+        res.status(500).json({ error: "Đã xảy ra lỗi khi lấy tổng tiền từng ngày trong khoảng thời gian" });
+    }
+}
+
 module.exports = {
     getStatistics,
     updateStatistics,
     getTopBuyers,
+    getTotalPriceMonth,
+    getTotalPriceDay,
+    getTopProductSeller
 };
