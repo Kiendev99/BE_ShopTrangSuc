@@ -200,6 +200,15 @@ const createOrder = async (req, res) => {
         message: "Người dùng không tồn tại",
       });
     }
+    const updateProductSold = async (product) => {
+      const productFind = await Product.findById(product.product);
+      if (productFind) {
+        productFind.sold += product.quantity;
+        await productFind.save();
+      }
+    };
+
+    await Promise.all(cartProducts.map(updateProductSold));
 
     const updateProductQuantity = async (product) => {
       const productFInd = await Product.findById(product.product);
