@@ -14,5 +14,5 @@
     router.get('/getOrder/:id', [verifyAccessToken, isAdmin], ctrls.getOrder);
     router.post('/getOrder', ctrls.getOrders);
     router.get('/filterByStatus', ctrls.getOrdersByStatus);
-
+    router.post("/search-order", ctrls.searchOrder)
     module.exports = router 

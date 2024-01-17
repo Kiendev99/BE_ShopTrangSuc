@@ -42,12 +42,38 @@ const updateSize = asyncHandler(async (req, res) => {
         updateSize: response ? response : 'Ko cập nhập Size được!!'
     })
 })
+const searchSize = async (req, res) => {
+    try {
+        const { search = "" } = req.body;
+
+        const sizes = await Size.find({
+            nameSize: { $regex: new RegExp(search, "i") }
+        });
+
+        if (!sizes || sizes.length === 0) {
+            return res.json({
+                message: "Danh sách sản phẩm trống.",
+            });
+        }
+
+        return res.json({
+            message: "Lấy danh sách thành công.",
+            data: sizes,
+        });
+    } catch (error) {
+        return res.json({
+            message: error.message || "Xảy ra lỗi không xác định.",
+        });
+    }
+};
+
 module.exports = {
     createdSize,
     getAllSize,
     deleteSize,
     updateSize,
-    getSize
+    getSize,
+    searchSize
     // getAllBrand,
     // updateBrand,
     // deleteBrand,

@@ -9,6 +9,7 @@ router.get('/', ctrls.getAllSize)
 router.get('/:id', ctrls.getSize)
 router.put('/:id', [verifyAccessToken, isAdmin], ctrls.updateSize)
 router.delete('/:id', [verifyAccessToken, isAdmin], ctrls.deleteSize)
+router.post("/search-size", ctrls.searchSize)
 // router.get('/brand/:brand', ctrls.getProductsByBrandId);
 
 

@@ -580,7 +580,30 @@ const getOrdersByStatus = async (req, res) => {
     });
   }
 };
+const searchOrder = async (req, res) => {
+  try {
+      const { search = "" } = req.body;
 
+      const orders = await Order.find({
+        name: { $regex: new RegExp(search, "i") }
+      });
+
+      if (!orders || orders.length === 0) {
+          return res.json({
+              message: "Danh sách sản phẩm trống.",
+          });
+      }
+
+      return res.json({
+          message: "Lấy danh sách thành công.",
+          data: orders,
+      });
+  } catch (error) {
+      return res.json({
+          message: error.message || "Xảy ra lỗi không xác định.",
+      });
+  }
+};
 module.exports = {
   createOrder,
   updateStatus,
@@ -595,4 +618,5 @@ module.exports = {
   deleteProductOrder,
   getOrdersByStatus,
   updateStatusSendEmail,
+  searchOrder
 };

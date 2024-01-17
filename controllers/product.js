@@ -246,24 +246,27 @@ const searchProduct = async (req, res) => {
     try {
         const { search = "" } = req.body;
 
-        const products = await Product.find();
-        const newProducts = products
-            .filter((item) => item.title.includes(search))
-        if (!products) {
+        const products = await Product.find({
+            title: { $regex: new RegExp(search, "i") }
+        });
+
+        if (!products || products.length === 0) {
             return res.json({
-                message: "Lấy danh sách thất bại",
+                message: "Danh sách sản phẩm trống.",
             });
         }
+
         return res.json({
             message: "Lấy danh sách thành công.",
-            data: newProducts,
+            data: products,
         });
     } catch (error) {
         return res.json({
-            message: error,
+            message: error.message || "Xảy ra lỗi không xác định.",
         });
     }
 };
+
 const getFilteredProducts = async (req, res) => {
     try {
         const { title, minPrice, maxPrice } = req.query;
