@@ -150,13 +150,13 @@ const getTopBuyers = async (req, res) => {
             };
         }
 
-        const topBuyers = await Order.aggregate([
-            { $match: matchCondition },
-            { $unwind: "$user" },
-            { $group: { _id: "$user", totalPrice: { $sum: "$totalPrice" } } },
-            { $sort: { totalPrice: -1 } },
-            { $limit: 5 }
-        ]);
+            const topBuyers = await Order.aggregate([
+                { $match: matchCondition },
+                { $unwind: "$user" },
+                { $group: { _id: "$user", totalPrice: { $sum: "$totalPrice" } } },
+                { $sort: { totalPrice: -1 } },
+                { $limit: 5 }
+            ]);
 
 
         const topBuyersWithDetails = await User.populate(topBuyers, { path: '_id', select: 'firstname lastname email orders' });
@@ -174,10 +174,36 @@ const getTopBuyers = async (req, res) => {
 
 const getTopProductSeller = async (req, res) => {
     try {
-        const topProducts = await Product.find({})
-            .sort({ sold: -1 })
-            .select("title price sold")
-            .limit(5);
+        const { startDate, endDate } = req.body;
+
+        const matchCondition = {};
+
+       
+        if (startDate && endDate) {
+            matchCondition.dateFieldInYourSchema = {
+                $gte: new Date(startDate), 
+                $lte: new Date(endDate)    
+            };
+        }
+
+        const topProducts = await Product.aggregate([
+            { $match: matchCondition }, 
+            {
+                $group: {
+                    _id: "$_id",
+                    title: { $first: "$title" },
+                    price: { $first: "$price" },
+                    sold: { $first: "$sold" },
+                    totalPrice: { $sum: { $multiply: ["$price", "$sold"] } }
+                }
+            },
+            {
+                $sort: { totalPrice: -1 }
+            },
+            {
+                $limit: 5
+            }
+        ]);
 
         return res.status(200).json({
             success: true,
@@ -240,8 +266,6 @@ const getTotalPriceMonth = async (req, res) => {
             currentDate.setMonth(currentDate.getMonth() + 1);
         }
         const totalAmountAllMonths = finalData.reduce((total, monthData) => total + monthData.totalAmount, 0);
-
-        console.log(totalAmountAllMonths);
 
         res.json({ result: finalData, totalAmountAllMonths });
     } catch (error) {
@@ -315,13 +339,8 @@ const getTotalPriceDay = async (req, res) => {
             };
         });
 
-        console.log("Tổng tiền từng ngày trong khoảng thời gian sau khi kiểm tra:");
-        console.log(logData);
-
         // Tính totalAmountInRange từ logData
         const totalAmountInRange = Object.values(logData).reduce((total, amount) => total + amount, 0);
-
-        console.log("Tổng tổng tiền trong khoảng thời gian:", totalAmountInRange);
 
         res.json({ dailyTotals, logData, totalAmountInRange });
 
